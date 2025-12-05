@@ -17,21 +17,23 @@ def plot_performance_comparison(acc_fp32, acc_int8, acc_float8, time_fp32, time_
     axes[0].bar(models, accuracies, color=['#3498db', '#e74c3c', '#9b59b6'])
     axes[0].set_ylabel('Accuracy (%)')
     axes[0].set_title('Model Accuracy Comparison')
-    axes[0].set_ylim([0, 100])
+    axes[0].set_ylim([0, 115])  # Increased limit to fit labels
     for i, v in enumerate(accuracies):
-        axes[0].text(i, v + 1, f'{v:.2f}%', ha='center', va='bottom')
+        axes[0].text(i, v + 2, f'{v:.2f}%', ha='center', va='bottom', fontweight='bold')
     
     axes[1].bar(models, times, color=['#3498db', '#e74c3c', '#9b59b6'])
     axes[1].set_ylabel('Latency (ms/sample)')
     axes[1].set_title('Inference Latency Comparison')
+    axes[1].set_ylim([0, max(times) * 1.2])  # Dynamic limit
     for i, v in enumerate(times):
-        axes[1].text(i, v + max(times)*0.02, f'{v:.4f}', ha='center', va='bottom')
+        axes[1].text(i, v + max(times)*0.02, f'{v:.4f}', ha='center', va='bottom', fontweight='bold')
     
     axes[2].bar(models, sizes, color=['#3498db', '#e74c3c', '#9b59b6'])
     axes[2].set_ylabel('Model Size (MB)')
     axes[2].set_title('Model Size Comparison')
+    axes[2].set_ylim([0, max(sizes) * 1.2])  # Dynamic limit
     for i, v in enumerate(sizes):
-        axes[2].text(i, v + max(sizes)*0.02, f'{v:.2f}MB', ha='center', va='bottom')
+        axes[2].text(i, v + max(sizes)*0.02, f'{v:.2f}MB', ha='center', va='bottom', fontweight='bold')
     
     plt.tight_layout()
     plt.savefig('./visuals/performance_comparison.png', dpi=150, bbox_inches='tight')
@@ -111,19 +113,24 @@ def visualize_predictions(float_model, quantized_model, float8_model, num_sample
         axes[1, idx].set_xlim([0, 100])
         axes[1, idx].set_title(f'FP32: {FASHION_MNIST_LABELS[float_pred]}\n({float_conf:.1f}%)', fontsize=7)
         axes[1, idx].set_yticks([])
-        axes[1, idx].set_xlabel('Confidence %')
+        if idx == 0: axes[1, idx].set_ylabel('Confidence', fontsize=8)
         
         axes[2, idx].barh([0], [int8_conf], color=color_int8, alpha=0.7)
         axes[2, idx].set_xlim([0, 100])
         axes[2, idx].set_title(f'Int8: {FASHION_MNIST_LABELS[int8_pred]}\n({int8_conf:.1f}%)', fontsize=7)
         axes[2, idx].set_yticks([])
-        axes[2, idx].set_xlabel('Confidence %')
+        if idx == 0: axes[2, idx].set_ylabel('Confidence', fontsize=8)
         
         axes[3, idx].barh([0], [float8_conf], color=color_float8, alpha=0.7)
         axes[3, idx].set_xlim([0, 100])
         axes[3, idx].set_title(f'Float8: {FASHION_MNIST_LABELS[float8_pred]}\n({float8_conf:.1f}%)', fontsize=7)
         axes[3, idx].set_yticks([])
-        axes[3, idx].set_xlabel('Confidence %')
+        if idx == 0: axes[3, idx].set_ylabel('Confidence', fontsize=8)
+        
+        # Only show x-axis labels on the bottom row to reduce clutter
+        axes[1, idx].set_xticks([])
+        axes[2, idx].set_xticks([])
+        axes[3, idx].tick_params(axis='x', labelsize=7)
     
     plt.suptitle('FashionMNIST Predictions: Float32 vs Int8 vs Float8 Quantized', fontsize=12, y=0.995)
     plt.tight_layout()
@@ -144,9 +151,9 @@ def plot_quantization_impact(acc_fp32, acc_int8, acc_float8, time_fp32, time_int
     axes[0, 0].set_xticks(x)
     axes[0, 0].set_xticklabels(['Float32', 'Int8', 'Float8'])
     axes[0, 0].legend()
-    axes[0, 0].set_ylim([0, max(acc_fp32, acc_int8, acc_float8) * 1.1])
+    axes[0, 0].set_ylim([0, 115])  # Increased limit
     for i, (val, offset) in enumerate([(acc_fp32, -width), (acc_int8, 0), (acc_float8, width)]):
-        axes[0, 0].text(i + offset, val + max(acc_fp32, acc_int8, acc_float8)*0.01, f'{val:.2f}%', ha='center', va='bottom', fontsize=8)
+        axes[0, 0].text(i + offset, val + 2, f'{val:.2f}%', ha='center', va='bottom', fontsize=8, fontweight='bold')
     
     axes[0, 1].bar(x - width, [time_fp32, 0, 0], width, label='Float32', color='#3498db')
     axes[0, 1].bar(x, [0, time_int8, 0], width, label='Int8', color='#e74c3c')
@@ -156,9 +163,9 @@ def plot_quantization_impact(acc_fp32, acc_int8, acc_float8, time_fp32, time_int
     axes[0, 1].set_xticks(x)
     axes[0, 1].set_xticklabels(['Float32', 'Int8', 'Float8'])
     axes[0, 1].legend()
-    axes[0, 1].set_ylim([0, max(time_fp32, time_int8, time_float8) * 1.1])
+    axes[0, 1].set_ylim([0, max(time_fp32, time_int8, time_float8) * 1.25])  # Increased limit
     for i, (val, offset) in enumerate([(time_fp32, -width), (time_int8, 0), (time_float8, width)]):
-        axes[0, 1].text(i + offset, val + max(time_fp32, time_int8, time_float8)*0.01, f'{val:.4f}', ha='center', va='bottom', fontsize=7)
+        axes[0, 1].text(i + offset, val + max(time_fp32, time_int8, time_float8)*0.02, f'{val:.4f}', ha='center', va='bottom', fontsize=7, fontweight='bold')
     
     axes[1, 0].bar(x - width, [size_fp32, 0, 0], width, label='Float32', color='#3498db')
     axes[1, 0].bar(x, [0, size_int8, 0], width, label='Int8', color='#e74c3c')
@@ -168,9 +175,9 @@ def plot_quantization_impact(acc_fp32, acc_int8, acc_float8, time_fp32, time_int
     axes[1, 0].set_xticks(x)
     axes[1, 0].set_xticklabels(['Float32', 'Int8', 'Float8'])
     axes[1, 0].legend()
-    axes[1, 0].set_ylim([0, max(size_fp32, size_int8, size_float8) * 1.1])
+    axes[1, 0].set_ylim([0, max(size_fp32, size_int8, size_float8) * 1.25])  # Increased limit
     for i, (val, offset) in enumerate([(size_fp32, -width), (size_int8, 0), (size_float8, width)]):
-        axes[1, 0].text(i + offset, val + max(size_fp32, size_int8, size_float8)*0.01, f'{val:.2f}MB', ha='center', va='bottom', fontsize=8)
+        axes[1, 0].text(i + offset, val + max(size_fp32, size_int8, size_float8)*0.02, f'{val:.2f}MB', ha='center', va='bottom', fontsize=8, fontweight='bold')
     
     size_reduction_int8 = (1 - size_int8/size_fp32) * 100
     size_reduction_float8 = (1 - size_float8/size_fp32) * 100
@@ -189,10 +196,17 @@ def plot_quantization_impact(acc_fp32, acc_int8, acc_float8, time_fp32, time_int
     axes[1, 1].set_xticks(range(len(metrics)))
     axes[1, 1].set_xticklabels(metrics, rotation=45, ha='right', fontsize=8)
     axes[1, 1].axhline(y=0, color='black', linestyle='--', linewidth=0.8)
+    
+    # Increase y-limit for impact metrics
+    max_val = max([abs(v) for v in values])
+    axes[1, 1].set_ylim([-max_val * 1.3, max_val * 1.3])
+    
     for i, (bar, val) in enumerate(zip(bars, values)):
         label = f'{val:.2f}%' if i < 2 or i >= 4 else f'{val:.2f}x'
-        axes[1, 1].text(bar.get_x() + bar.get_width()/2, val + (max([abs(v) for v in values])*0.02 if val >= 0 else -max([abs(v) for v in values])*0.02), 
-                       label, ha='center', va='bottom' if val >= 0 else 'top', fontsize=7)
+        # Improved label positioning logic
+        y_pos = val + (max_val * 0.1 if val >= 0 else -max_val * 0.15)
+        axes[1, 1].text(bar.get_x() + bar.get_width()/2, y_pos, 
+                       label, ha='center', va='center', fontsize=7, fontweight='bold')
     
     plt.tight_layout()
     plt.savefig('./visuals/quantization_impact.png', dpi=150, bbox_inches='tight')

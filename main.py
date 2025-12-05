@@ -72,9 +72,9 @@ if __name__ == "__main__":
     print(f"{'Accuracy (%)':<22} | {acc_fp32:<13.2f} | {acc_int8:<13.2f} | {acc_float8:<13.2f}")
     print(f"{'Inference Latency (ms)':<22} | {time_fp32:<13.4f} | {time_int8:<13.4f} | {time_float8:<13.4f}")
     print("-" * 75)
-    print(f"{'Size Reduction':<22} | {'1.00x':<13} | {size_fp32/size_int8:<13.2f}x | {size_fp32/size_float8:<13.2f}x")
-    print(f"{'Memory Savings':<22} | {'0.0%':<13} | {(1-size_int8/size_fp32)*100:<13.1f}% | {(1-size_float8/size_fp32)*100:<13.1f}%")
-    print(f"{'Inference Speedup':<22} | {'1.00x':<13} | {speedup_int8:<13.2f}x | {speedup_float8:<13.2f}x")
+    print(f"{'Size Reduction':<22} | {'1.00x':<13} | {size_fp32/size_int8:<.2f}x{' '*8} | {size_fp32/size_float8:<.2f}x")
+    print(f"{'Memory Savings':<22} | {'0.0%':<13} | {(1-size_int8/size_fp32)*100:<.1f}%{' '*8} | {(1-size_float8/size_fp32)*100:<.1f}%")
+    print(f"{'Inference Speedup':<22} | {'1.00x':<13} | {speedup_int8:<.2f}x{' '*8} | {speedup_float8:<.2f}x")
     print("="*75)
 
     print("\n--- 7. Generating Visualizations ---")
